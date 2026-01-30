@@ -1,3 +1,6 @@
+import { initTable } from "../components/table";
+import { render } from "../main";
+
 export const data = {
     "customers": [
         {
@@ -6698,4 +6701,10 @@ export const data = {
             "total_discount": 134.5
         }
     ]
-}
+};
+export const sampleTable = initTable({
+    tableTemplate: 'table',
+    rowTemplate: 'row',
+    before: ['search', 'header', 'filter'],       // Шаг 3 / Шаг 4 / Шаг 5
+    after: ['pagination']               // Шаг 2 - добавляем  вывод шаблона пагинации в таблицу строку прокрутки
+}, render);

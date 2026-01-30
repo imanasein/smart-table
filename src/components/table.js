@@ -12,17 +12,17 @@ export function initTable(settings, onAction) {
     // @todo: #1.2 —  вывести дополнительные шаблоны до и после таблицы
     const root = cloneTemplate(tableTemplate);
     
-    if (Array.isArray(before)) {                                        // Проверяем является ли переданный аргумент массивом (true)
-        before.reverse().forEach(subName => {                           // перебираем нужный массив идентификаторов
-            root[subName] = cloneTemplate(subName);                     // клонируем и получаем объект, сохраняем в таблице
-            root.container.prepend(root[subName].container);            // добавляем к таблице после (append) или до (prepend)
-        });
-    }
-    
     if (Array.isArray(after)) {                                          // Обрабатываем шаблоны "после" (after) тоже самое
         after.forEach(subName => {
             root[subName] = cloneTemplate(subName);
             root.container.append(root[subName].container);
+        });
+    }
+
+    if (Array.isArray(before)) {                                        // Проверяем является ли переданный аргумент массивом (true)
+        before.reverse().forEach(subName => {                           // перебираем нужный массив идентификаторов
+            root[subName] = cloneTemplate(subName);                     // клонируем и получаем объект, сохраняем в таблице
+            root.container.prepend(root[subName].container);            // добавляем к таблице после (append) или до (prepend)
         });
     }
 
@@ -34,7 +34,7 @@ export function initTable(settings, onAction) {
     root.container.addEventListener('reset', (e) => {                   // к root.container добавить обработчики событий reset
         setTimeout(() => {
             onAction();                                                 // Отложенный вызов onAction
-        }, 0);                                                          // Минимальная задержка для обеспечения очистки полей
+        }, 500);                                                        // Минимальная задержка для обеспечения очистки полей 500????
     });
 
     root.container.addEventListener('submit', (e) => {                  // к root.container добавить обработчики событий submit
@@ -51,6 +51,7 @@ export function initTable(settings, onAction) {
                     row.elements[key].textContent = item[key];      // если да, то в его textContent присваиваем данные item[key]
                 } 
             });
+            debugger
             return row;
         });
         root.elements.rows.replaceChildren(...nextRows);
