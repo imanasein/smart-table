@@ -12,29 +12,23 @@ export function initTable(settings, onAction) {
     // @todo: #1.2 —  вывести дополнительные шаблоны до и после таблицы
     const root = cloneTemplate(tableTemplate);
     
-    if (Array.isArray(after)) {                                          // Обрабатываем шаблоны "после" (after) тоже самое
-        after.forEach(subName => {
-            root[subName] = cloneTemplate(subName);
-            root.container.append(root[subName].container);
+    before.reverse().forEach(subName => {                               // перебираем нужный массив идентификаторов
+        root[subName] = cloneTemplate(subName);                         // клонируем и получаем объект, сохраняем в таблице
+        root.container.prepend(root[subName].container);                // добавляем к таблице после (append) или до (prepend)
         });
-    }
-
-    if (Array.isArray(before)) {                                        // Проверяем является ли переданный аргумент массивом (true)
-        before.reverse().forEach(subName => {                           // перебираем нужный массив идентификаторов
-            root[subName] = cloneTemplate(subName);                     // клонируем и получаем объект, сохраняем в таблице
-            root.container.prepend(root[subName].container);            // добавляем к таблице после (append) или до (prepend)
+                            
+    after.forEach(subName => {                                          // Обрабатываем шаблоны "после" (after) тоже самое                     
+        root[subName] = cloneTemplate(subName);
+        root.container.append(root[subName].container);
         });
-    }
 
     // @todo: #1.3 —  обработать события и вызвать onAction()
-    root.container.addEventListener('change', (e) => {                   // к root.container добавить обработчики событий change
-        onAction();                                                      // вызов onAction без аргумента
+    root.container.addEventListener('change', () => {                   // к root.container добавить обработчики событий change
+        onAction();                                                     // вызов onAction без аргумента
     });
 
-    root.container.addEventListener('reset', (e) => {                   // к root.container добавить обработчики событий reset
-        setTimeout(() => {
-            onAction();                                                 // Отложенный вызов onAction
-        }, 500);                                                        // Минимальная задержка для обеспечения очистки полей 500????
+    root.container.addEventListener('reset', () => {                    // к root.container добавить обработчики событий reset
+        setTimeout(onAction);                                           // вызываем onAction с минимальной задержкой setTimeout
     });
 
     root.container.addEventListener('submit', (e) => {                  // к root.container добавить обработчики событий submit
@@ -48,11 +42,15 @@ export function initTable(settings, onAction) {
             const row = cloneTemplate(rowTemplate);                 // получаем клонированный шаблон строки
             Object.keys(item).forEach(key => {                      // перебор по ключам данных
                 if (row.elements[key]) {                            // проверяем, что key существует в row.elements
-                    row.elements[key].textContent = item[key];      // если да, то в его textContent присваиваем данные item[key]
-                } 
+                    const element = row.elements[key];
+                        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {  // Проверяем тип элемента
+                            element.value = item[key];              // для input и select используем value
+                        } else {                                    // метод .tagName возвр название тега в верхнем регистре
+                            element.textContent = item[key];        // для остальных элементов используем textContent
+                        }
+                    } 
             });
-            debugger
-            return row;
+            return row.container;                                   // возвращаем row.container
         });
         root.elements.rows.replaceChildren(...nextRows);
     }
