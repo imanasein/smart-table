@@ -12,7 +12,7 @@ import { initSearching } from './components/searching.js';
 // Исходные данные используемые в render()
 const {data, ...indexes} = initData(sourceData);
 // @todo: инициализация Шаг 5
-const applySearching = initSearching(sampleTable.search.elements);  // переметр - имя поля search ?????
+const applySearching = initSearching('search');                 // параметр - имя поля search 
 
 // @todo: инициализация Шаг 4
 const applyFiltering = initFiltering(sampleTable.filter.elements, {    // передаём элементы фильтра
@@ -61,7 +61,7 @@ export function render(action) {
     let state = collectState();                                 // состояние полей из таблицы
     let result = [...data];                                     // копируем для последующего изменения
     
-  
+    result = applySearching(result, state, action);  
     result = applyFiltering(result, state, action);            // @todo: использование Шаг 4
     result = applySorting(result, state, action);               // @todo: использование Шаг 3
     result = applyPagination(result, state, action);            // @todo: использование Шаг 2
