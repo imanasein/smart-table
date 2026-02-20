@@ -1,4 +1,4 @@
-import {sortMap} from "../lib/sort.js";                             // sortCollection больше не нужен
+import { sortMap } from "../lib/sort.js";                             // sortCollection больше не нужен
 
 export function initSorting(columns) {
     return (query, state, action) => {
@@ -10,13 +10,13 @@ export function initSorting(columns) {
             action.dataset.value = sortMap[action.dataset.value];    // Сохраним и применим как текущее следующее состояние из карты ('none' > 'up' > 'down' > 'none')
             field = action.dataset.field;                            // Информация о сортируемом поле есть также в кнопке
             order = action.dataset.value;                            // Направление заберём прямо из датасета для точности 
-            
+
             // @todo: #3.2 — сбросить сортировки остальных колонок
             columns.forEach(column => {                              // Перебираем элементы (в columns у нас массив кнопок)
                 if (column.dataset.field !== action.dataset.field) { // Если это не та кнопка, что нажал пользователь
-                column.dataset.value = 'none';                       // тогда сбрасываем её в начальное состояние ('none' > 'up' > 'down' > 'none')
+                    column.dataset.value = 'none';                       // тогда сбрасываем её в начальное состояние ('none' > 'up' > 'down' > 'none')
                 }
-            }); 
+            });
         } else {
             // @todo: #3.3 — получить выбранный режим сортировки
             columns.forEach(column => {                             // Перебираем все наши кнопки сортировки
@@ -24,7 +24,7 @@ export function initSorting(columns) {
                     field = column.dataset.field;                   // Сохраняем в переменных поле
                     order = column.dataset.value;                   // и направление сортировки
                 }
-            }); 
+            });
         }
         const sort = (field && order !== 'none') ? `${field}:${order}` : null; // сохраним в переменную параметр сортировки в виде field:direction
 

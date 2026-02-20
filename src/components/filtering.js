@@ -19,11 +19,11 @@ export function initFiltering(elements) {
             const currentInput = parentEl.querySelector('input');       // в родителе находим <input>
             if (currentInput) {
                 currentInput.value = "";                                // очищаем поле <input>
-            }                
+            }
             const fieldName = clearButton.getAttribute('data-field');   // находим значение атрибута data-field кнопки
             if (fieldName in state) {
                 state[fieldName] = "";                                  // и очищаем соответствующее поле в state
-            }                    
+            }
         }
         // @todo: #4.5 — отфильтровать данные, используя компаратор
         const filter = {};
