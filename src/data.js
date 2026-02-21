@@ -16,20 +16,37 @@ export function initData() {
         total: item.total_amount
     }));
 
-    // функция получения индексов
-    const getIndexes = async () => {
+    // функция получения индексов от сервера 
+    async function getIndexes() {
         if (!sellers || !customers) {                       // если индексы ещё не установлены, то делаем запросы
-            [sellers, customers] = await Promise.all([      // запрашиваем и деструктурируем в уже объявленные ранее переменные
-                fetch(`${BASE_URL}/sellers`).then(res => res.json()), // запрашиваем продавцов
-                fetch(`${BASE_URL}/customers`).then(res => res.json()), // запрашиваем покупателей
-            ]);
+            try {
+                [sellers, customers] = await Promise.all([  // запрашиваем и деструктурируем в уже объявленные ранее переменные
+                    fetch(`${BASE_URL}/sellers`).then(res => {
+                        if (!res.ok) {                      // проверим на корректность ответ сервера
+                            throw new Error(`HTTP error! Status: ${res.status}`);
+                        }
+                        return res.json();                  // запрашиваем продавцов
+                    }),
+                    fetch(`${BASE_URL}/customers`).then(res => {
+                        if (!res.ok) {                      // проверим на корректность ответ сервера
+                            throw new Error(`HTTP error! Status: ${res.status}`);
+                        }
+                        return res.json();                  // запрашиваем покупателей
+                    })
+                ]);
+            } catch (error) {
+                console.error('Error fetching indexes:', error);
+                throw error;                                // Перебрасываем ошибку дальше
+            }
         }
-
         return { sellers, customers };                      // возвращаем массив продовцов и покупателей 
     }
 
     // функция получения записей о продажах с сервера
     const getRecords = async (query, isUpdated = false) => {
+        if (typeof query !== 'object') {                    // проверка аргумента query, что является объектом
+            throw new Error('Query is not an object');
+        }
         const qs = new URLSearchParams(query);              // преобразуем объект параметров в SearchParams объект, представляющий query часть url
         const nextQuery = qs.toString();                    // и приводим к строковому виду
 
@@ -38,16 +55,25 @@ export function initData() {
         }
 
         // если прошлый квери не был ранее установлен или поменялись параметры, то запрашиваем данные с сервера
-        const response = await fetch(`${BASE_URL}/records?${nextQuery}`);
-        const records = await response.json();
+        try {
+            const response = await fetch(`${BASE_URL}/records?${nextQuery}`);
+            if (!response.ok) {                             // проверяем ответ на корректность 
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const records = await response.json();
 
-        lastQuery = nextQuery;                              // сохраняем для следующих запросов
-        lastResult = {
-            total: records.total,
-            items: mapRecords(records.items)
-        };
+            lastQuery = nextQuery;                              // сохраняем для следующих запросов
+            lastResult = {
+                total: records.total,
+                items: mapRecords(records.items)
+            };
 
-        return lastResult;
+            return lastResult;
+
+        } catch (error) {
+            console.error('Error fetching records:', error);
+            throw error;
+        }
     };
 
     return {
